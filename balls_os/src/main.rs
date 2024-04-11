@@ -19,7 +19,6 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
 
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
     let mapper = unsafe { memory::init(phys_mem_offset) };
-
     let addresses = [
         // the identity-mapped vga buffer page
         0xb8000,
