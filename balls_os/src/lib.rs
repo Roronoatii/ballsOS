@@ -7,13 +7,7 @@
 
 #[cfg(test)]
 use bootloader::{entry_point, BootInfo};
-
-#[cfg(test)]
-entry_point!(test_kernel_main);
-
 use core::panic::PanicInfo;
-#[cfg(test)]
-use bootloader::{entry_point, BootInfo};
 
 #[cfg(test)]
 entry_point!(test_kernel_main);
