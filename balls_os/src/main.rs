@@ -11,7 +11,6 @@ mod vga_buffer;
 
 entry_point!(kernel_main);
 
-#[no_mangle]
 fn kernel_main(boot_info: &'static BootInfo) -> ! {
     use balls_os::memory;
     use x86_64::{structures::paging::Translate, VirtAddr};
