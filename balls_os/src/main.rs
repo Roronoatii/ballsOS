@@ -9,6 +9,7 @@ extern crate alloc;
 use core::panic::PanicInfo;
 use bootloader::{BootInfo, entry_point};
 use alloc::{boxed::Box, vec, vec::Vec, rc::Rc};
+use balls_os::task::{Task, simple_executor::SimpleExecutor};
 
 
 mod vga_buffer;
@@ -24,6 +25,10 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     use balls_os::memory::BootInfoFrameAllocator;
 
     println!("ballsOS alpha-v0.0.2\n");
+    balls_os::init(); 
+    fn stack_overflow() {
+        stack_overflow(); 
+    }
 
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
     let mut mapper = unsafe { memory::init(phys_mem_offset) };
@@ -34,6 +39,8 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
         .expect("heap initialization failed");
     let heap_value = Box::new(41);
     println!("heap_value at {:p}", heap_value);
+
+ 
 
     let mut vec = Vec::new();
     for i in 0..500 {
@@ -47,26 +54,38 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     core::mem::drop(reference_counted);
     println!("reference count is {} now", Rc::strong_count(&cloned_reference));
 
+    let mut executor = SimpleExecutor::new();
+    executor.spawn(Task::new(example_task()));
+    executor.run();
+
     pong::main();
-    
+
     #[cfg(test)]
     test_main();
 
     println!("It did not crash!");
 
 
-    loop {}
+   balls_os::hlt_loop();   
 }
 
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    loop {}
+    balls_os::hlt_loop(); 
 }
 
 #[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     balls_os::test_panic_handler(info)
+}
+
+async fn async_number() -> u32 {
+    42
+}
+async fn example_task() {
+    let number = async_number().await;
+    println!("async number: {}", number);
 }
