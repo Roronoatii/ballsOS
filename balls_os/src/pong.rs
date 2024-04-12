@@ -72,7 +72,7 @@ impl GameState {
                 } else {
                     (' ' as u16, 0x00) // Empty space
                 };
-                let value = (fg_color << 4) | (color & 0x07);
+                let value = (fg_color << 4) | (color & 0x0F);
                 unsafe {
                     *SCREEN_BUFFER_ADDR.offset(idx as isize) = symbol as u8;
                     *SCREEN_BUFFER_ADDR.offset((idx + 1) as isize) = value;
