@@ -4,7 +4,7 @@
 #![feature(custom_test_frameworks)]
 #![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "test_main"]
-
+#![feature(const_mut_refs)]
 #[cfg(test)]
 use bootloader::{entry_point, BootInfo};
 use core::panic::PanicInfo;
@@ -12,9 +12,14 @@ use core::panic::PanicInfo;
 #[cfg(test)]
 entry_point!(test_kernel_main);
 
+use core::panic::PanicInfo;
+extern crate alloc;
+
 pub mod serial;
 pub mod vga_buffer;
 pub mod memory;
+pub mod allocator;
+
 
 pub trait Testable {
     fn run(&self) -> ();
