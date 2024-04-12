@@ -36,3 +36,8 @@ default-features = false
 [[test]]
 name = "stack_overflow"
 harness = false
+
+[dependencies.futures-util]
+version = "0.3.4"
+default-features = false
+features = ["alloc"]
