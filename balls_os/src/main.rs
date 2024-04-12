@@ -5,11 +5,13 @@
 #![reexport_test_harness_main = "test_main"]
 
 extern crate alloc;
-
+pub(crate)
 use core::panic::PanicInfo;
 use bootloader::{BootInfo, entry_point};
 use alloc::{boxed::Box, vec, vec::Vec, rc::Rc};
 use balls_os::task::{Task, simple_executor::SimpleExecutor};
+use balls_os::task::keyboard; 
+use balls_os::task::executor::Executor; 
 
 
 mod vga_buffer;
@@ -54,8 +56,10 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     core::mem::drop(reference_counted);
     println!("reference count is {} now", Rc::strong_count(&cloned_reference));
 
-    let mut executor = SimpleExecutor::new();
+    let mut executor = Executor::new();
     executor.spawn(Task::new(example_task()));
+    executor.spawn(Task::new(keyboard::print_keypresses())); 
+
     executor.run();
 
     pong::main();
