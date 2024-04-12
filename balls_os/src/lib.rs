@@ -1,5 +1,5 @@
 #![no_std]
-
+#![feature(abi_x86_interrupt)]
 #![cfg_attr(test, no_main)]
 #![feature(custom_test_frameworks)]
 #![test_runner(crate::test_runner)]
@@ -14,10 +14,13 @@ entry_point!(test_kernel_main);
 use core::panic::PanicInfo;
 extern crate alloc;
 
+pub mod task;
 pub mod serial;
 pub mod vga_buffer;
 pub mod memory;
 pub mod allocator;
+pub mod interrupts;
+pub mod gdt;
 
 
 pub trait Testable {
@@ -35,6 +38,13 @@ where
     }
 }
 
+pub fn init() {
+    gdt::init();
+    interrupts::init_idt();
+    unsafe { interrupts::PICS.lock().initialize() };
+    x86_64::instructions::interrupts::enable(); 
+}
+
 pub fn test_runner(tests: &[&dyn Testable]) {
     serial_println!("Running {} tests", tests.len());
     for test in tests {
@@ -47,14 +57,15 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
     serial_println!("[failed]\n");
     serial_println!("Error: {}\n", info);
     exit_qemu(QemuExitCode::Failed);
-    loop {}
+    hlt_loop();
 }
 
 /// Entry point for `cargo test`
 #[cfg(test)]
 fn test_kernel_main(_boot_info: &'static BootInfo) -> ! {
+    init();  
     test_main();
-    loop {}
+    hlt_loop();
 }
 
 #[cfg(test)]
@@ -76,6 +87,12 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
     unsafe {
         let mut port = Port::new(0xf4);
         port.write(exit_code as u32);
+    }
+}
+
+pub fn hlt_loop() -> ! {
+    loop {
+        x86_64::instructions::hlt();
     }
 }
 
