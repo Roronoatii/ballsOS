@@ -10,6 +10,8 @@
 .DS_Store
 desktop.ini
 
+pong
+
 ## Editor
 *.swp
 *.swo

@@ -12,7 +12,6 @@ use core::panic::PanicInfo;
 #[cfg(test)]
 entry_point!(test_kernel_main);
 
-use core::panic::PanicInfo;
 extern crate alloc;
 
 pub mod serial;
