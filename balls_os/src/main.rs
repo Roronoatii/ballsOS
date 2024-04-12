@@ -12,6 +12,7 @@ use alloc::{boxed::Box, vec, vec::Vec, rc::Rc};
 
 
 mod vga_buffer;
+mod pong;
 
 
 entry_point!(kernel_main);
@@ -46,6 +47,7 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     core::mem::drop(reference_counted);
     println!("reference count is {} now", Rc::strong_count(&cloned_reference));
 
+    pong::main();
     
     #[cfg(test)]
     test_main();
